@@ -937,11 +937,283 @@
     display: none;
   }
 
+  /* On a phone the bar cannot hold wordmark + five links + toggle.
+     The Ø toggle is decorative until the terminal ships, so it drops
+     first; links tighten rather than wrap or overflow. */
+  @media (width < 48rem) {
+    .site-header {
+      gap: 0.75rem;
+    }
+    .wordmark-text {
+      display: none;
+    }
+    .nav-link {
+      padding: 0.45rem 0.55rem;
+      font-size: 0.8rem;
+    }
+    .mode-toggle {
+      display: none;
+    }
+  }
+
   @media (width >= 48rem) {
     .header-path {
       display: block;
       color: var(--color-text-3);
       margin-inline-start: 0.5rem;
     }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   9. Home
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  .home {
+    position: relative;
+  }
+
+  /* ------------------------------- hero ------------------------------ */
+
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+  }
+
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100svh;
+    padding-block: 1rem 1.5rem;
+  }
+
+  /* status strip: at the top edge, left-aligned, never centred */
+  .hero-status {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding-top: 0.6rem;
+  }
+
+  .hero-status-sep {
+    color: var(--color-text-4);
+  }
+
+  /* The wordmark + one line + one CTA, offset low-left, answered by the
+     Ø on the right — one focal point, asymmetric inside the frame. */
+  .hero-core {
+    align-self: end;
+    padding-bottom: 8vh;
+    max-width: 46rem;
+  }
+
+  .hero-wordmark {
+    margin-left: -0.06em; /* optical: wide-stretch glyphs hang left */
+  }
+
+  .hero-line {
+    margin-top: 1.6rem;
+    color: var(--color-text-2);
+    max-width: 30ch;
+  }
+
+  .hero-cta {
+    margin-top: 3rem;
+  }
+
+  .hero-scroll {
+    justify-self: end;
+    display: grid;
+    justify-items: center;
+    gap: 0.7rem;
+    padding-bottom: 0.4rem;
+    color: var(--color-text-3);
+    transition: color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .hero-scroll:hover {
+    color: var(--color-accent-edge);
+  }
+
+  .hero-scroll-line {
+    width: 1px;
+    height: 3.4rem;
+    background: linear-gradient(
+      to bottom,
+      var(--color-accent),
+      transparent
+    );
+    transform-origin: top;
+    animation: scroll-cue 2.4s var(--ease-in-out-quint) infinite;
+  }
+
+  @keyframes scroll-cue {
+    0% {
+      transform: scaleY(0);
+      opacity: 0;
+    }
+    35% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scaleY(1);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-scroll-line {
+      animation: none;
+      opacity: 0.5;
+      transform: none;
+    }
+  }
+
+  /* ------------------------- statement sequence ------------------------- */
+
+  .hero-after {
+    display: grid;
+    gap: 42vh; /* statements breathe one viewport apart */
+    padding-block: 26vh 30vh;
+    padding-inline: var(--gutter);
+  }
+
+  .stmt {
+    color: var(--color-text-1);
+    max-width: 34ch;
+    justify-self: center;
+    text-align: center;
+  }
+
+  /* The only centred moment on the page — it is a held breath, not a layout. */
+
+  /* ------------------------------ teasers ------------------------------ */
+
+  .teasers {
+    padding-block: var(--section-gap);
+  }
+
+  .teasers-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+  }
+
+  .teasers-all {
+    color: var(--color-text-3);
+    transition: color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .teasers-all:hover {
+    color: var(--color-accent-edge);
+  }
+
+  .teasers-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+
+  /* Each teaser is a row, not a card: index / title / blurb / meta, so it
+     never reads as three identical cards. */
+  .teaser {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'idx title meta'
+      'idx blurb meta';
+    column-gap: 2rem;
+    align-items: baseline;
+    padding-block: 2.2rem;
+    border-top: 1px solid rgb(255 255 255 / 0.07);
+    transition: background-color var(--dur-micro) var(--ease-out-quad),
+      padding-left var(--dur-enter) var(--ease-out-expo);
+  }
+
+  .teaser:last-child {
+    border-bottom: 1px solid rgb(255 255 255 / 0.07);
+  }
+
+  .teaser:hover {
+    background-color: rgb(255 255 255 / 0.02);
+    padding-left: 0.8rem;
+  }
+
+  .teaser-idx {
+    grid-area: idx;
+    color: var(--color-text-4);
+    transition: color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .teaser:hover .teaser-idx {
+    color: var(--color-accent);
+  }
+
+  .teaser-title {
+    grid-area: title;
+    color: var(--color-text-1);
+  }
+
+  .teaser-blurb {
+    grid-area: blurb;
+    color: var(--color-text-2);
+    font-size: var(--text-body);
+    margin-top: 0.4rem;
+    max-width: 44ch;
+  }
+
+  .teaser-meta {
+    grid-area: meta;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    color: var(--color-text-3);
+    white-space: nowrap;
+  }
+
+  @media (width < 48rem) {
+    .teaser {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'idx'
+        'title'
+        'blurb'
+        'meta';
+      row-gap: 0.5rem;
+    }
+
+    .teaser-meta {
+      flex-direction: row;
+      align-items: center;
+      gap: 1.2rem;
+    }
+  }
+
+  /* -------------------------------- close ------------------------------- */
+
+  .home-close {
+    padding-block: var(--section-gap);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+
+  .home-close-line {
+    color: var(--color-text-1);
   }
 }

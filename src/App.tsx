@@ -8,6 +8,7 @@ import { IconZero } from './components/icons';
 import { useSmoothScroll } from './lib/scroll';
 import { routes } from './content';
 
+const Home = lazy(() => import('./routes/Home'));
 const Specimen = lazy(() => import('./routes/Specimen'));
 const SceneGate = lazy(() => import('./components/SceneGate'));
 
@@ -114,7 +115,7 @@ export default function App() {
             <RouteTransition>
               <Suspense fallback={null}>
                 <Routes>
-                  <Route path="/" element={<Specimen />} />
+                  <Route path="/" element={<Home />} />
                   <Route path="/_specimen" element={<Specimen />} />
                 </Routes>
               </Suspense>

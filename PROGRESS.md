@@ -404,3 +404,56 @@ screenshot comparison exists for a human to confirm the look.
 Task 5 — Home: the refractive Ø hero with pointer inertia, the decode wordmark, the
 status strip, the magnetic CTA, and the scroll-driven camera sequence teasing
 featured projects.
+
+---
+
+## Task 5 — HOME
+
+**What exists**
+- `src/scene/ZeroObject.tsx` — the hero Ø as a real refractive object: a glass torus
+  (1.32/0.33) with a capsule slash at 45°, plus a hairline emissive rim that is the
+  only thing in the scene seeding bloom (§7.2). It answers the pointer through a
+  spring (k 5.2, damping 0.86) rather than a lerp, so it lags and settles: that
+  inertia is most of what makes it read as mass instead of a CSS trick. A slow yaw
+  drift means it never looks frozen with the pointer still. Scroll makes it recede
+  (y −1.9, z −2.4) and the `zeroPulse` Easter-egg event swells it. Refraction is
+  tiered — 8 samples/512 at high, 4/256 at medium, and at the low tier it drops to
+  a matte metal material, because transmission is the single most expensive thing
+  in the scene.
+- `src/routes/HeroScene.tsx` — the hero's own canvas, separate from the global
+  Scene and layered under the hero text. Volumetric light is three additive cones
+  converging on the object (accent, teal, indigo) plus two point lights; scroll
+  tightens them, so the object is lit harder as it sinks. One source, and it is
+  the object — the guard against everything glowing.
+- `src/components/Decode.tsx` — the scramble reveal. The resolved text sits in an
+  `.sr-only` twin and the scrambling glyphs are `aria-hidden`, so assistive tech
+  reads the real word once and never the noise. Once per session per id.
+- `src/routes/Home.tsx` — hero (mono status strip at the top edge, decode wordmark,
+  one line of positioning, one magnetic CTA, scroll cue), a scrubbed statement
+  sequence, three featured teasers built as rows of real content (index, title,
+  blurb, year, stack) rather than identical cards, and a quiet availability close.
+
+**Verification — `scripts/verify-home.mjs`, 25/25**
+- The Ø canvas **paints** (116k non-black samples) and changes between frames, so
+  the object renders and `useFrame` runs. This was the open question from Task 4:
+  a mounted canvas proves nothing.
+- Exactly one `h1`; it carries "ZEROOX" for AT and the decode resolves visually.
+- At 1440, 1024, 768 and 390: no horizontal scroll, wordmark ≤2 lines, the
+  statement sequence reveals on scroll, three teasers link to `/projects/*`.
+- Reduced motion: wordmark present with no decode wait, statements fully opaque
+  with no scrub, and the Ø still paints in its resting pose under the demand
+  frameloop.
+
+**One real bug found and fixed**
+134px of horizontal overflow at 390px — the header could not hold wordmark text,
+five nav links and the Ø toggle. On phones the wordmark drops to the Ø mark alone,
+links tighten, and the mode toggle hides (it is decorative until the terminal
+ships). Two other failures were harness bugs: measuring line height on the
+`.sr-only` twin, which is clipped to 1px by design and reports zero.
+
+**Known limitation**
+Whether the Ø looks like expensive glass is still a human-eyes call. Screenshots at
+four widths are in `.verify/home/`.
+
+**Next task**
+Task 6 — Projects index and case-study pages.
