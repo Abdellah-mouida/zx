@@ -1,67 +1,137 @@
-import { Routes, Route } from 'react-router-dom';
-import Specimen from './routes/Specimen';
+import { useEffect, useMemo, useState, Suspense, lazy } from 'react';
+import { Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { Cursor } from './components/Cursor';
-import { useReducedMotion, setReducedMotionToggle } from './lib/motion';
+import Preloader from './components/Preloader';
+import RouteTransition from './components/RouteTransition';
+import { Micro } from './components/Micro';
+import { IconZero } from './components/icons';
+import { useSmoothScroll } from './lib/scroll';
+import { routes } from './content';
+
+const Specimen = lazy(() => import('./routes/Specimen'));
+const SceneGate = lazy(() => import('./components/SceneGate'));
 
 /**
- * App shell.
- *
- * The real nav lands in Task 4 with routing and the preloader. For now this
- * mounts the custom cursor and a minimal bar so the material layer has a
- * real host to be verified against, including a working reduce-effects
- * toggle.
+ * Asset progress for the preloader. Real, not faked: fonts from
+ * document.fonts and the document's own readiness.
  */
+function useAssetProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let fontsDone = false;
+    let docDone = false;
+    const update = () => {
+      // Two real gates: fonts half the bar, document the other half.
+      const p = (fontsDone ? 0.5 : 0.15) + (docDone ? 0.5 : 0);
+      setProgress(p);
+    };
+
+    update();
+
+    document.fonts.ready.then(() => {
+      fontsDone = true;
+      update();
+    });
+
+    if (document.readyState === 'complete') {
+      docDone = true;
+      update();
+    } else {
+      const onLoad = () => {
+        docDone = true;
+        update();
+      };
+      window.addEventListener('load', onLoad);
+      return () => window.removeEventListener('load', onLoad);
+    }
+  }, []);
+
+  return progress;
+}
+
+function Header() {
+  const location = useLocation();
+  return (
+    <header className="site-header frame">
+      <Link to="/" className="wordmark" aria-label="ZEROOX — home">
+        <IconZero size={20} className="wordmark-mark" aria-hidden="true" />
+        <span className="wordmark-text">ZEROOX</span>
+      </Link>
+
+      <nav aria-label="Primary" className="site-nav">
+        {routes.map((r) => (
+          <NavLink
+            key={r.path}
+            to={r.path}
+            className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+            end={r.path === '/'}
+          >
+            {r.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <button type="button" className="mode-toggle" aria-label="Terminal mode" aria-pressed="false" data-cursor="link">
+        <IconZero size={22} aria-hidden="true" />
+      </button>
+
+      <span className="header-path" aria-hidden="true">
+        <Micro>{routes.find((r) => r.path === location.pathname)?.prompt ?? location.pathname}</Micro>
+      </span>
+    </header>
+  );
+}
+
 export default function App() {
-  const reduced = useReducedMotion();
+  const progress = useAssetProgress();
+  const [loaded, setLoaded] = useState(false);
+  const ready = progress >= 0.9;
+  useSmoothScroll();
+
+  // Keep body scroll locked while the preloader owns the screen.
+  useEffect(() => {
+    document.documentElement.style.overflow = loaded ? '' : 'hidden';
+    return () => {
+      document.documentElement.style.overflow = '';
+    };
+  }, [loaded]);
+
+  const shell = useMemo(
+    () => (
+      <>
+        <Cursor />
+        <Suspense fallback={null}>
+          <SceneGate />
+        </Suspense>
+
+        <div className="app-shell" style={{ position: 'relative', zIndex: 1 }}>
+          <a href="#main" className="skip-link">
+            Skip to content
+          </a>
+          <Header />
+          <main id="main">
+            <RouteTransition>
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" element={<Specimen />} />
+                  <Route path="/_specimen" element={<Specimen />} />
+                </Routes>
+              </Suspense>
+            </RouteTransition>
+          </main>
+        </div>
+      </>
+    ),
+    [],
+  );
 
   return (
     <>
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
-
-      <Cursor />
-
-      <header
-        style={{
-          position: 'fixed',
-          inset: '0 0 auto 0',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1.25rem var(--gutter)',
-        }}
-      >
-        <a
-          href="/"
-          className="t-micro"
-          style={{ color: 'var(--color-text-1)', letterSpacing: '0.2em' }}
-        >
-          ZEROØX
-        </a>
-
-        <button
-          className="t-micro"
-          onClick={() => setReducedMotionToggle(!reduced)}
-          aria-pressed={reduced}
-          style={{
-            color: 'var(--color-text-2)',
-            padding: '0.4rem 0.75rem',
-            border: '1px solid rgb(255 255 255 / 0.14)',
-            borderRadius: '2px',
-          }}
-        >
-          {reduced ? 'effects: off' : 'effects: on'}
-        </button>
-      </header>
-
-      <div id="main">
-        <Routes>
-          <Route path="/" element={<Specimen />} />
-          <Route path="/_specimen" element={<Specimen />} />
-        </Routes>
-      </div>
+      {!loaded && <Preloader progress={progress} ready={ready} onDone={() => setLoaded(true)} />}
+      {/* The shell mounts beneath the preloader so first paint is text,
+          not a blank canvas — the LCP element is the wordmark. */}
+      {shell}
     </>
   );
 }

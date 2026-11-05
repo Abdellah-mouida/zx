@@ -310,3 +310,97 @@ input). Screenshots are in `.verify/specimen/`.
 Task 4 — atmosphere: the aurora shader with its five per-page moods, GPU-instanced
 particles, light trails, the FPS monitor and quality tiers, the router with animated
 route transitions, and the cinematic preloader.
+
+---
+
+## 2026-11-05 — Task 4: Atmosphere — aurora, particles, trails, tiers, routing, preloader
+
+**Built**
+The complete ambient layer the site lives inside: the aurora shader field,
+GPU dust, light trails, the adaptive quality system, smooth scroll, routing
+with animated transitions, and the cinematic preloader.
+
+**Files touched**
+- `src/lib/quality.ts` — capability probe, three tiers, rolling-median FpsMonitor
+- `src/lib/atmosphere.ts` — the store: scroll, velocity, mood, tier, scene state
+- `src/lib/scroll.ts` — Lenis wired to the store and to ScrollTrigger, one clock
+- `src/three/aurora.ts` — the field shader with five moods as uniforms
+- `src/three/particles.ts` — instanced dust, 3 parallax layers, faked DOF
+- `src/three/trails.ts` — catmull-rom ribbons with a travelling head
+- `src/scene/Aurora.tsx`, `Particles.tsx`, `Trails.tsx`, `Post.tsx`, `Scene.tsx`, `StaticAurora.tsx`
+- `src/components/Preloader.tsx`, `RouteTransition.tsx`, `SceneGate.tsx`
+- `src/App.tsx`, `src/styles/tokens.css` (preloader + header)
+- `scripts/test-quality.mjs` (12 unit checks), `scripts/verify-atmosphere.mjs` (20 browser checks)
+
+**Decisions**
+
+1. **Quality never oscillates.** A rolling 60-frame *median* (not mean — one GC pause
+   or a tab switch must not demote a comfortable machine) under 50fps for a sustained
+   2s drops exactly one tier, one way, and stops at the floor. Demotion takes trails
+   and particles off the *end* of a fixed deterministic list rather than reshuffling,
+   so the scene does not visibly rearrange itself when a tier drops.
+2. **One shader for the aurora, five moods as uniforms.** A domain-warped fBm field
+   whose warp/speed/density/brightness come from a per-page `vec4` table: calm, drift,
+   dense, quiet, signal. The mood is *eased* on route change so the atmosphere shifts
+   rather than cuts. Scroll lifts the field and velocity swirls it — velocity-aware,
+   per §6.3. The teal/indigo mix is capped at 18% of a secondary band.
+3. **DOF is faked, not rendered.** Particles use per-layer size+alpha falloff and no
+   DOF pass — at this count that buys the same read for none of the cost.
+4. **DOF of authority: only additive blending may brighten the scene** (particles and
+   trails), enforcing "if everything glows, nothing is premium" at the renderer level.
+   Bloom is seeded only by emissive (the Ø rim, trail heads), never by UI or text.
+   Chromatic aberration is capped at 0.0005 so it reads as lens quality.
+5. **three.js never downloads when it cannot run.** A `SceneGate` probes WebGL before
+   `import()`: `lazy()` alone downloads the ~270KB-gzip chunk on mount even for
+   fallback users. Verified in-browser that the `three` chunk is *not requested*
+   without WebGL, and that the CSS static aurora paints instead. A first attempt put
+   `StaticAurora` inside `Scene.tsx`, which statically pulled the whole scene into the
+   eager chunk — moved to its own module.
+6. **Scroll has exactly one clock.** GSAP's ticker drives Lenis, Lenis reports to both
+   the atmosphere store and `ScrollTrigger`, so the aurora's velocity and the pinned
+   camera work cannot drift apart. Under reduced motion Lenis is never started — the
+   store still gets *position* but zero velocity, so nothing stretches or swirls.
+7. **The preloader reports real progress and cannot hold the page.** Fonts (half) +
+   document ready (half). It exits when ready, has a 650ms minimum so it does not
+   flicker, and a hard 2.5s ceiling after which it exits regardless. The Ø mark's ring
+   is drawn by real `stroke-dashoffset` progress and the slash sweeps in past 72%.
+   The LCP element is the H1 wordmark, painted *under* the preloader.
+8. **All scene movement is in shaders, not JS.** Aurora, particles and trails compute
+   position from `uTime`/`uScroll`/`uVelocity` in the vertex/fragment stage; per-frame
+   JS only writes uniforms and never triggers a React render (the atmosphere store is
+   `useSyncExternalStore`, not context, specifically so 60Hz scroll updates don't
+   re-render the tree).
+
+**Verification**
+
+- `scripts/test-quality.mjs` — **12/12 pass** on the trickiest logic: no demotion on
+  a brief dip or a single stall, median ignores a minority of slow frames, demotion is
+  one-way and stops at low, dispose halts monitoring, tiers degrade monotonically, low
+  disables all post + DPR clamps to 1. Caught one real bug: `sample()`'s first call
+  only primes the timestamp, so the median stays `null` one frame longer than expected.
+- `scripts/verify-atmosphere.mjs` — **20/20 pass** in a real browser:
+  - WebGL path: canvas mounts with a real buffer, is `aria-hidden`, does not intercept
+    pointer events, compiles all shaders with zero errors, produces visible output,
+    and animates (frame content differs over 900ms).
+  - Preloader exits at ~2.7s and unlocks scroll.
+  - **LCP element is `<H1>`**, not the canvas, at **1.4s** — inside the 2.5s budget
+    and painted before WebGL initialises, exactly per §10.
+  - Reduced motion: `data-motion="reduced"` set, content fully visible with no
+    residual transform, render loop on demand.
+  - No WebGL: no canvas, the CSS aurora paints, **three.js never downloads**, content
+    renders fine.
+  - Nav exposes all five routes; skip link targets `#main`.
+- Two earlier test failures were harness bugs, not scene bugs: a too-narrow canvas
+  selector (R3F wraps the canvas in its own div) and an rAF-cadence check that only
+  measures headless software-GL throttling. Both fixed to assert real signals.
+- `npm run build` clean; `three` is correctly lazy at 270KB gzip behind the gate.
+
+**Known limitation**
+Whether the aurora *looks* expensive is a human-eyes call I cannot make (no image
+input). Programmatically it compiles, animates and stays legibly dark under text; the
+screenshot comparison exists for a human to confirm the look.
+
+**Next task**
+Task 5 — Home: the refractive Ø hero with pointer inertia, the decode wordmark, the
+status strip, the magnetic CTA, and the scroll-driven camera sequence teasing
+featured projects.

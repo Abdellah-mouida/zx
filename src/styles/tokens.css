@@ -794,3 +794,154 @@
     --glass-sheen: 0;
   }
 }
+
+/* ------------------------------------------------------------------ *
+   7. Preloader & route transitions
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: grid;
+    place-items: center;
+    background-color: var(--color-void);
+    opacity: 1;
+    transition: opacity 560ms var(--ease-out-expo);
+  }
+
+  .preloader.is-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .preloader-core {
+    position: relative;
+  }
+
+  /* The ring's draw is the loading read; no spin, no bounce. */
+  .preloader-core svg {
+    display: block;
+  }
+
+  .preloader-meta {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(2rem, 8vh, 5rem);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-inline: var(--gutter);
+  }
+
+  .preloader-word {
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: 500;
+    font-stretch: 112%;
+    letter-spacing: -0.03em;
+    color: var(--color-text-2);
+  }
+
+  .preloader-pct {
+    color: var(--color-text-3);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   8. Header & navigation
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-block: 1.1rem;
+    /* A plain bar (§8): no floating pill, no glass panel here. */
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--color-text-1);
+  }
+
+  .wordmark-mark {
+    color: var(--color-accent-edge);
+  }
+
+  .wordmark-text {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-stretch: 118%;
+    letter-spacing: 0.02em;
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: auto;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.85rem;
+    font-family: var(--font-text);
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-text-2);
+    border-radius: 0.25rem;
+    transition:
+      color var(--dur-micro) var(--ease-out-quad),
+      background-color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .nav-link:hover {
+    color: var(--color-text-1);
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+  .nav-link.is-active {
+    color: var(--color-text-1);
+    /* One quiet accent marker, not a filled pill. */
+    box-shadow: inset 0 -1px 0 var(--color-accent);
+  }
+
+  .mode-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--color-text-2);
+    border-radius: 50%;
+    transition:
+      color var(--dur-micro) var(--ease-out-quad),
+      background-color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .mode-toggle:hover {
+    color: var(--color-accent-edge);
+    background-color: rgb(255 255 255 / 0.06);
+  }
+
+  .header-path {
+    display: none;
+  }
+
+  @media (width >= 48rem) {
+    .header-path {
+      display: block;
+      color: var(--color-text-3);
+      margin-inline-start: 0.5rem;
+    }
+  }
+}

@@ -11,7 +11,9 @@
     "fonts": "node scripts/fetch-fonts.mjs",
     "test:e2e": "playwright test",
     "verify": "node scripts/verify.mjs",
-    "verify:material": "node scripts/verify-material.mjs"
+    "verify:material": "node scripts/verify-material.mjs",
+    "test:quality": "node scripts/test-quality.mjs",
+    "test:atmosphere": "node scripts/verify-atmosphere.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
