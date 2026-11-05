@@ -43,3 +43,6 @@ blob-report/
 # local agent config (contains machine-specific settings)
 opencode.json
 opencode.json.backup-*
+
+# visual verification output
+.verify/

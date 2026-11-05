@@ -1,0 +1,534 @@
+/*
+  ZEROOX — token layer
+  ====================
+  Every value here traces to DESIGN.md. Components reference tokens, never
+  raw values. Tailwind 4 is configured CSS-first, and the default palette is
+  deliberately NOT extended — only the tokens below exist.
+
+  Order: @theme (design tokens) -> base -> utilities -> components.
+*/
+
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+   1. Tokens  (DESIGN.md §2, §4, §6)
+ * ------------------------------------------------------------------ */
+
+@theme {
+  /* Wipe Tailwind's default palette and families. If a colour is not a
+     ZEROOX token, it must not be reachable from a utility class. */
+  --color-*: initial;
+  --font-*: initial;
+
+  /* --- ground, §2.1 --- */
+  --color-void: #000000;
+  --color-surface-1: #050608;
+  --color-surface-2: #0a0c10;
+  --color-surface-3: #11141a;
+
+  /* --- accent, one hue, §2.2 --- */
+  --color-accent: #3d8bff;
+  --color-accent-edge: #7fb2ff;
+  --color-accent-muted: #1e4680;
+  --color-accent-deep: #0b1a33;
+
+  /* --- aurora only, §2.3. Never in UI. --- */
+  --color-aurora-teal: #1e6b73;
+  --color-aurora-indigo: #2b2f6b;
+
+  /* --- text, §2.4. Contrast on void: 17.62 / 8.33 / 3.66 / 1.93 --- */
+  --color-text-1: rgb(255 255 255 / 0.92);
+  --color-text-2: rgb(255 255 255 / 0.64);
+  --color-text-3: rgb(255 255 255 / 0.4);
+  --color-text-4: rgb(255 255 255 / 0.24);
+
+  /* --- faces, §4 --- */
+  --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-text: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* --- type scale, §4.1 --- */
+  --text-display-xl: clamp(3.5rem, 11vw, 11rem);
+  --text-display-l: clamp(2.5rem, 7vw, 6rem);
+  --text-display-m: clamp(2rem, 4.5vw, 3.5rem);
+  --text-heading: clamp(1.5rem, 2.5vw, 2rem);
+  --text-statement: clamp(1.25rem, 2vw, 1.75rem);
+  --text-body: clamp(1rem, 1.1vw, 1.125rem);
+  --text-small: 0.875rem;
+  --text-micro: 0.6875rem;
+
+  /* --- easing, §6.1. No elastic, no bounce, ever. --- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* --- duration, §6.2 --- */
+  --dur-tap: 120ms;
+  --dur-micro: 240ms;
+  --dur-enter: 480ms;
+  --dur-route: 720ms;
+  --dur-camera: 1400ms;
+}
+
+/* Non-theme tokens: used by hand-written CSS, not by utility generation. */
+:root {
+  --accent-glow: rgb(61 139 255 / 0.55);
+
+  /* layout, §5 */
+  --gutter: 1rem;
+  --page-max: 90rem; /* 1440px */
+  --section-gap: 4.5rem;
+
+  /* glass, §3 — per-level values live in the component layer below */
+  --glass-grain-size: 128px;
+
+  /* pointer sheen, §3. Updated from one throttled listener. */
+  --mx: 50%;
+  --my: 50%;
+
+  /* Set to 1 by the reduce-effects toggle or prefers-reduced-motion. */
+  --motion-off: 0;
+}
+
+@media (width >= 48rem) {
+  :root {
+    --gutter: 1.5rem;
+    --section-gap: 7.5rem;
+  }
+}
+
+@media (width >= 90rem) {
+  :root {
+    --section-gap: 10rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   2. Faces  (§4)
+ * ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: 'Archivo Variable';
+  src: url('/fonts/archivo-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope Variable';
+  src: url('/fonts/manrope-var.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  src: url('/fonts/jetbrains-mono-var.woff2') format('woff2-variations');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------------------------------------------ *
+   3. Base
+ * ------------------------------------------------------------------ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Lenis drives scrolling; native smooth scroll would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-void);
+    color: var(--color-text-1);
+    font-family: var(--font-text);
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* §9.10 — no horizontal scroll at any width. */
+    overflow-x: clip;
+  }
+
+  /* Headings default to the display face; sizes are applied per use. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  /* §8 — focus is never removed, only restyled. Always visible. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-edge);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* The custom cursor replaces the pointer only where it is safe to do so;
+     form fields and touch keep the native one (§8). */
+  ::selection {
+    background-color: var(--color-accent-muted);
+    color: var(--color-text-1);
+  }
+
+  img,
+  svg,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Decorative canvases are hidden from assistive tech at the source. */
+  canvas[aria-hidden='true'] {
+    pointer-events: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   4. Utilities
+ * ------------------------------------------------------------------ */
+
+@layer utilities {
+  /* --- the page frame, §5. Equal outer margins at every width. --- */
+  .frame {
+    width: 100%;
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* --- type presets, §4.1. Each carries its own tracking and leading,
+         so a size is never applied without its settings. --- */
+  .t-display-xl {
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    font-weight: 500;
+    font-stretch: 118%;
+    letter-spacing: -0.045em;
+    line-height: 0.86;
+  }
+
+  .t-display-l {
+    font-family: var(--font-display);
+    font-size: var(--text-display-l);
+    font-weight: 500;
+    font-stretch: 112%;
+    letter-spacing: -0.035em;
+    line-height: 0.92;
+  }
+
+  .t-display-m {
+    font-family: var(--font-display);
+    font-size: var(--text-display-m);
+    font-weight: 500;
+    font-stretch: 105%;
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+
+  .t-heading {
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: 600;
+    font-stretch: 100%;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+
+  .t-statement {
+    font-family: var(--font-text);
+    font-size: var(--text-statement);
+    font-weight: 300;
+    line-height: 1.35;
+    max-width: 34ch;
+  }
+
+  .t-body {
+    font-family: var(--font-text);
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.55;
+    max-width: 68ch;
+  }
+
+  .t-small {
+    font-family: var(--font-text);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  /* The only uppercase-tracked style in the system. Reserved for real
+     system data (§4.2): coordinates, indices, status codes. */
+  .t-micro {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nums-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Visually hidden but available to assistive tech. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Skip link: hidden until focused. */
+  .skip-link {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 200;
+    translate: -50% -120%;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--color-surface-3);
+    color: var(--color-text-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    transition: translate var(--dur-micro) var(--ease-out-expo);
+  }
+
+  .skip-link:focus-visible {
+    translate: -50% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   5. Glass  (§3) — five layers, three levels. A fourth level is a bug.
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  /*
+    Layer order inside every .glass-*:
+      backdrop  -> backdrop-filter on the element
+      fill      -> background-color on the element
+      edge      -> ::before, 1px gradient border via mask
+      highlight -> inset box-shadow hairline
+      grain     -> ::after, tiled SVG noise, overlay blend
+      bounce    -> a radial behind the element, accent-deep
+    The pointer sheen rides on ::before's second background layer.
+  */
+  .glass-surface,
+  .glass-raised,
+  .glass-overlay {
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--glass-radius, 0.25rem);
+    background-color: var(--glass-fill);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.1);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / var(--glass-highlight)),
+      var(--glass-shadow, 0 0 transparent);
+  }
+
+  /* edge: 1px gradient border, bright top-left -> transparent bottom-right.
+     `background-clip: padding-box` paints it under the transparent 1px
+     border, giving a hard ring (not a faded fill on a mask). */
+  .glass-surface::before,
+  .glass-raised::before,
+  .glass-overlay::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: calc(var(--glass-radius, 0.25rem) + 1px);
+    padding: 1px;
+    background:
+      radial-gradient(
+          18rem circle at var(--mx) var(--my),
+          rgb(255 255 255 / calc(var(--glass-sheen) * (1 - var(--motion-off)))),
+          transparent 60%
+        )
+        border-box,
+      linear-gradient(
+          135deg,
+          rgb(255 255 255 / var(--glass-edge)) 0%,
+          rgb(255 255 255 / calc(var(--glass-edge) * 0.35)) 38%,
+          transparent 72%
+        )
+        border-box;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* grain — kills the plastic look. One shared inline asset. */
+  .glass-surface::after,
+  .glass-raised::after,
+  .glass-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: var(--glass-grain);
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: var(--glass-grain-size) var(--glass-grain-size);
+    pointer-events: none;
+  }
+
+  .glass-surface {
+    --glass-blur: 12px;
+    --glass-fill: rgb(5 6 8 / 0.48);
+    --glass-edge: 0.1;
+    --glass-highlight: 0.04;
+    --glass-grain: 0.02;
+    --glass-sheen: 0;
+  }
+
+  .glass-surface:hover {
+    --glass-sheen: 0.06;
+  }
+
+  .glass-raised {
+    --glass-blur: 20px;
+    --glass-fill: rgb(10 12 16 / 0.62);
+    --glass-edge: 0.18;
+    --glass-highlight: 0.07;
+    --glass-grain: 0.03;
+    --glass-sheen: 0.06;
+  }
+
+  .glass-overlay {
+    --glass-blur: 32px;
+    --glass-fill: rgb(17 20 26 / 0.78);
+    --glass-edge: 0.26;
+    --glass-highlight: 0.1;
+    --glass-grain: 0.04;
+    --glass-sheen: 0;
+    /* The only level with a shadow: the only one that truly floats. */
+    --glass-shadow: 0 24px 64px -16px rgb(0 0 0 / 0.9);
+  }
+
+  .glass-overlay:hover {
+    --glass-sheen: 0.06;
+  }
+
+  /* bounce — soft accent light reflecting up from underneath (§3.6).
+     The one place a glow is ambient. */
+  .glass-bounce {
+    position: relative;
+  }
+
+  .glass-bounce::before {
+    content: '';
+    position: absolute;
+    inset: auto 8% -30% 8%;
+    height: 60%;
+    z-index: -2;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, var(--color-accent-deep), transparent 70%);
+    opacity: var(--bounce-strength, 0.18);
+    filter: blur(28px);
+    pointer-events: none;
+  }
+
+  /* §3.2 fallback — no backdrop-filter: go opaque, keep the layout. */
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-surface {
+      --glass-fill: rgb(5 6 8 / 0.92);
+    }
+    .glass-raised {
+      --glass-fill: rgb(10 12 16 / 0.94);
+    }
+    .glass-overlay {
+      --glass-fill: rgb(17 20 26 / 0.96);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   6. Reduced motion  (§6.4)
+   Both prefers-reduced-motion and the visible toggle route here.
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-off: 1;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--dur-micro) !important;
+    /* Opacity transitions are kept; travel is removed at the component. */
+    scroll-behavior: auto !important;
+  }
+}
+
+:root[data-motion='reduced'] {
+  --motion-off: 1;
+}
+
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: var(--dur-micro) !important;
+}
+
+/* Touch: no hover to track, so the sheen is pointless and costs work. */
+@media (hover: none) {
+  :root {
+    --glass-sheen: 0;
+  }
+}

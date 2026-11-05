@@ -137,3 +137,100 @@ Task 2 — Foundation: Vite + React + TS, the Tailwind token layer generated fro
 the three self-hosted variable faces, and the complete `src/content/*.ts` with every
 item from the brief plus `placeholder: true` flags.
 
+---
+
+## 2026-11-05 — Task 2: Foundation
+
+**Built**
+A compiling, verified foundation: build config, token layer, three self-hosted
+variable faces, the complete content model, and a visual-verification harness.
+
+**Files touched**
+- `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `index.html`
+- `src/styles/tokens.css` — DESIGN.md §2–§6 as a Tailwind 4 `@theme` layer
+- `src/content/types.ts`, `identity.ts`, `arsenal.ts`, `projects.ts`, `about.ts`, `nav.ts`, `index.ts`
+- `src/main.tsx`, `src/App.tsx`, `src/routes/Specimen.tsx`
+- `scripts/fetch-fonts.mjs`, `scripts/verify.mjs`
+- `public/fonts/*.woff2` (3 faces, 151KB total), `public/fonts/OFL.txt`, `public/favicon.svg`
+- `.gitignore` (added `.verify/`)
+
+**Decisions**
+
+1. **Stack versions are current, and two were corrected mid-task.**
+   Vite **8.3.5**, React **19.3.1**, Tailwind **4.3.4**, three **0.187.0**,
+   @react-three/fiber **9.8.2**, drei **10.7.9**, GSAP **3.15.1**, Lenis **1.3.27**,
+   react-router **7.18.5**, TypeScript 5.9.
+   - Framer Motion is now at **v14** (the brief's expectation of a lower major was
+     stale); installed `framer-motion@^14.9.1`.
+   - Started on Vite 7, but `@vitejs/plugin-react@6` peer-requires Vite ^8.0.0.
+     Moved to Vite 8. 0 vulnerabilities.
+2. **Vite 8 uses Rolldown, so `manualChunks` no longer exists.** My first config
+   failed typecheck. Read the bundled Rolldown `.d.ts` to find the real API:
+   object-form `manualChunks` → `output.codeSplitting.groups` with `{name, test}`
+   entries (`advancedChunks` exists but is already deprecated). Four groups: `three`,
+   `post`, `motion`, `vendor` — so the 3D stack stays off the first-paint path.
+3. **Tailwind's default palette and font families are deliberately erased**
+   (`--color-*: initial; --font-*: initial`) in `@theme`. If a colour is not a ZEROOX
+   token it is now *unreachable from a utility class*, which enforces the strict palette
+   at the framework level rather than by discipline.
+4. **Font filenames are resolved from the registry, not guessed.** My first
+   `fetch-fonts.mjs` guessed `-standard-` for all three and 404'd on two: Fontsource
+   publishes `-standard-` only for multi-axis faces, and `-wght-` for single-axis ones.
+   The script now reads the published file list from the jsDelivr API and prefers
+   `-standard-` where it exists. Verified with fontTools that the downloaded files
+   carry the axes the design needs:
+   - `archivo-var.woff2` 88KB — `wght 100–900`, **`wdth 62–125`**
+   - `manrope-var.woff2` 24KB — `wght 200–800`
+   - `jetbrains-mono-var.woff2` 39KB — `wght 100–800`
+
+   151KB for all three. `OFL.txt` ships with per-face copyright attribution.
+5. **Type presets bundle their own tracking and leading** (`.t-display-xl` etc.), so a
+   size can never be applied without its settings — the most common way a careful type
+   scale degrades in practice.
+6. **Glass edge uses `mask-composite: exclude` on an inset pseudo-element**, not a
+   masked gradient fill. My first attempt produced a faded border rather than a crisp
+   1px rim. The sheen rides as a second background layer on the same pseudo-element, so
+   the whole material is two pseudo-elements total.
+7. **The terminal's Easter-egg count is stated in one place** (the `console.log` in
+   `index.html` and `terminalBanner` both say "five"), so the hint cannot drift from
+   the implementation.
+8. **No animation or 3D was written this task.** The brief's order puts material and
+   atmosphere in tasks 3–4; adding motion now would mean verifying it twice.
+
+**Verification**
+
+- `npm run typecheck` → clean, strict mode with `noUnusedLocals`,
+  `noUnusedParameters`, `verbatimModuleSyntax`.
+- `npm run build` → clean in 555ms. CSS 4.77KB gzip, vendor **81.22KB gzip** —
+  well inside the §10 budget of 180KB for initial JS.
+- **Built `scripts/verify.mjs`** and ran it at 390 / 768 / 1440 / 1920. It asserts:
+  no horizontal scroll, no headline over two lines, equal frame margins, exactly one
+  `h1`, no off-system font rendering text, no off-token colour painted,
+  `backdrop-filter` surviving into the shipped style, no blank stretch over half a
+  viewport, and zero console errors. Result: **clean at all four widths.**
+- **Negative-tested the harness** rather than trusting a green result: injected an
+  off-token colour (`#ff00aa`), an off-system face (Georgia) and a 9-line headline into
+  the specimen. All three were caught at all four widths — 12 FAILs — then reverted and
+  re-verified clean. The checks have teeth.
+- Confirmed in-browser via `document.fonts` that all three faces reach `loaded`, with
+  Archivo reporting stretch `62% 125%` — the `wdth` axis the display type depends on is
+  live, not just declared.
+
+**Known limitation, logged honestly**
+
+**I cannot see images.** This model has no image input, so the brief's instruction to
+*look at* screenshots at each width is not something I can personally satisfy. Rather
+than claim a visual review I did not perform, I invested in `scripts/verify.mjs` to
+convert as much of the visual review as possible into programmatic assertions (fonts,
+colours, line counts, margins, blank stretches, glass integrity, console). The
+screenshots are still written to `.verify/<route>/` at all four widths for a human to
+review. Judgement calls that genuinely need eyes — whether the composition reads as
+premium, whether the aurora looks cheap — remain unverified by me and need a human pass.
+This is recorded here so it is not discovered at the end.
+
+**Next task**
+Task 3 — the material layer: the three glass levels as React components, the
+context-aware cursor, magnetic buttons, the custom icon set, and the mono micro-label,
+all exercised on a specimen route.
+
+

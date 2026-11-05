@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#000000" />
+
+    <title>ZEROOX — Independent Developer &amp; Offensive Security</title>
+    <meta
+      name="description"
+      content="ZEROOX. Independent digital developer and offensive-security specialist. Break it. Understand it. Build it better."
+    />
+    <link rel="canonical" href="https://zeroox.dev/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ZEROOX" />
+    <meta property="og:title" content="ZEROOX — Independent Developer &amp; Offensive Security" />
+    <meta
+      property="og:description"
+      content="Offense is the best teacher. Red-team research, tooling and 3D/web engineering."
+    />
+    <meta property="og:url" content="https://zeroox.dev/" />
+    <meta property="og:image" content="https://zeroox.dev/og.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@zeroox_dev" />
+    <meta name="twitter:title" content="ZEROOX — Independent Developer &amp; Offensive Security" />
+    <meta
+      name="twitter:description"
+      content="Offense is the best teacher. Red-team research, tooling and 3D/web engineering."
+    />
+    <meta name="twitter:image" content="https://zeroox.dev/og.png" />
+
+    <!-- Preload the display face: it sets the h1 before WebGL is ready. -->
+    <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/manrope-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="mask-icon" href="/favicon.svg" color="#000000" />
+
+    <!--
+      Brief Easter egg: a message for whoever opens DevTools.
+      Kept quiet and dry. It also counts toward the discovery counter.
+    -->
+    <script>
+      // developer, you found the noise floor.
+      // the terminal is on the ` key. `help` lists commands. `0` toggles the mode.
+      console.log(
+        '%cZEROOX%c  //  inspection logged. ` = terminal. there are ' +
+          '%cfive%c things here that are not on the surface.',
+        'font-weight:700;color:#3D8BFF',
+        'color:inherit',
+        'color:#7FB2FF',
+        'color:inherit',
+      );
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
