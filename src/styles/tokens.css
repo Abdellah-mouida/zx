@@ -1217,3 +1217,424 @@
     color: var(--color-text-1);
   }
 }
+
+/* ------------------------------------------------------------------ *
+   10. Shared page furniture
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  /* Every interior page opens the same way: a mono label, one title, one
+     lede. The rhythm is the frame's, so pages never each invent a header. */
+  .page {
+    padding-top: 4vh;
+  }
+
+  .page-head {
+    padding-block: 8vh 6vh;
+    display: grid;
+    justify-items: start;
+    gap: 1.1rem;
+    max-width: 68rem;
+  }
+
+  .page-title {
+    margin: 0;
+    color: var(--color-text-1);
+  }
+
+  .page-lede {
+    color: var(--color-text-2);
+    max-width: 52ch;
+  }
+
+  .inline-link {
+    color: var(--color-accent-edge);
+    box-shadow: inset 0 -1px 0 rgb(61 139 255 / 0.4);
+    transition: box-shadow var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .inline-link:hover {
+    box-shadow: inset 0 -1px 0 var(--color-accent);
+  }
+
+  /* A stack chip: system data, square, no fill — never a coloured pill. */
+  .chip {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    color: var(--color-text-3);
+    white-space: nowrap;
+  }
+
+  /* ------------------------------ filters ------------------------------ */
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-bottom: 1rem;
+  }
+
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    font-family: var(--font-text);
+    font-size: var(--text-small);
+    color: var(--color-text-2);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    transition:
+      color var(--dur-micro) var(--ease-out-quad),
+      border-color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .filter:hover {
+    color: var(--color-text-1);
+    border-color: rgb(255 255 255 / 0.2);
+  }
+
+  .filter.is-active {
+    color: var(--color-text-1);
+    border-color: var(--color-accent);
+  }
+
+  .filter-count {
+    color: var(--color-text-4);
+  }
+
+  .filter.is-active .filter-count {
+    color: var(--color-accent-edge);
+  }
+
+  .filter-status {
+    padding-block: 0.4rem 2.5rem;
+    color: var(--color-text-3);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   11. Projects index
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  .projects {
+    padding-bottom: var(--section-gap);
+  }
+
+  .prows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* An editorial row. Featured entries take display type and more room, so
+     the index has a hierarchy instead of seven equal cards. */
+  .prow {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr) 11rem;
+    grid-template-areas:
+      'idx  title  meta'
+      'idx  blurb  meta'
+      'idx  stack  go';
+    column-gap: 2rem;
+    row-gap: 0.7rem;
+    padding-block: 2.4rem;
+    border-top: 1px solid rgb(255 255 255 / 0.07);
+    transition:
+      background-color var(--dur-micro) var(--ease-out-quad),
+      padding-left var(--dur-enter) var(--ease-out-expo);
+  }
+
+  .prows li:last-child .prow {
+    border-bottom: 1px solid rgb(255 255 255 / 0.07);
+  }
+
+  .prow.is-featured {
+    padding-block: 3.4rem;
+  }
+
+  .prow:hover {
+    background-color: rgb(255 255 255 / 0.02);
+    padding-left: 0.9rem;
+  }
+
+  .prow-idx {
+    grid-area: idx;
+    color: var(--color-text-4);
+    align-self: start;
+    padding-top: 0.5rem;
+    transition: color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .prow:hover .prow-idx {
+    color: var(--color-accent-edge);
+  }
+
+  .prow-title {
+    grid-area: title;
+    margin: 0;
+    color: var(--color-text-1);
+  }
+
+  .prow-blurb {
+    grid-area: blurb;
+    color: var(--color-text-2);
+    max-width: 56ch;
+  }
+
+  .prow-meta {
+    grid-area: meta;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    color: var(--color-text-3);
+  }
+
+  .prow-kind {
+    color: var(--color-text-3);
+  }
+
+  .prow-stack {
+    grid-area: stack;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding-top: 0.4rem;
+  }
+
+  .prow-go {
+    grid-area: go;
+    justify-self: end;
+    align-self: end;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition:
+      opacity var(--dur-micro) var(--ease-out-quad),
+      transform var(--dur-micro) var(--ease-out-expo);
+  }
+
+  .prow:hover .prow-go,
+  .prow:focus-visible .prow-go {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (width < 56rem) {
+    .prow,
+    .prow.is-featured {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'idx'
+        'title'
+        'blurb'
+        'stack'
+        'meta';
+      padding-block: 2rem;
+    }
+
+    .prow-idx {
+      padding-top: 0;
+    }
+
+    .prow-meta {
+      flex-direction: row;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .prow-go {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .prow-go {
+      opacity: 1;
+      transform: none;
+    }
+    .prow:hover {
+      padding-left: 0;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+   12. Case study
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  .case {
+    padding-bottom: var(--section-gap);
+  }
+
+  .case-head {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    padding-block: 5vh 7vh;
+    max-width: 72rem;
+  }
+
+  .case-back {
+    color: var(--color-text-3);
+    padding-bottom: 2vh;
+    transition: color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .case-back:hover {
+    color: var(--color-accent-edge);
+  }
+
+  .case-idx {
+    color: var(--color-text-4);
+  }
+
+  .case-title {
+    margin: 0;
+    color: var(--color-text-1);
+  }
+
+  .case-blurb {
+    color: var(--color-text-2);
+    max-width: 40ch;
+  }
+
+  /* Honest about invented content, in the page, not hidden in a comment. */
+  .case-placeholder {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-top: 1.5rem;
+    padding: 0.7rem 0.9rem;
+    border-left: 1px solid var(--color-accent);
+    color: var(--color-text-3);
+    font-size: var(--text-small);
+  }
+
+  /* Facts beside prose on wide screens, above it on narrow. */
+  .case-body {
+    display: grid;
+    grid-template-columns: 20rem minmax(0, 1fr);
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .case-facts {
+    position: sticky;
+    top: 6rem;
+    padding: 1.6rem;
+  }
+
+  .case-facts dl {
+    margin: 0;
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .case-facts dt {
+    color: var(--color-text-4);
+    padding-bottom: 0.3rem;
+  }
+
+  .case-facts dd {
+    margin: 0;
+    color: var(--color-text-1);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .case-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .case-prose {
+    display: grid;
+    gap: 4.5rem;
+    max-width: 68ch;
+  }
+
+  .case-prose h2 {
+    margin: 0 0 1.1rem;
+    color: var(--color-text-1);
+  }
+
+  .case-prose p {
+    color: var(--color-text-2);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  /* A real ordered list: the numbers carry sequence, which is information.
+     This is not the banned decorative 01/02/03 index. */
+  .case-process {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    display: grid;
+    gap: 1.6rem;
+  }
+
+  .case-process li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    color: var(--color-text-2);
+    line-height: 1.65;
+  }
+
+  .case-process li::before {
+    content: counter(step);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-text-4);
+    padding-top: 0.35rem;
+  }
+
+  .case-constraint {
+    padding-left: 1.4rem;
+    border-left: 1px solid var(--color-accent);
+  }
+
+  /* ------------------------------ case nav ------------------------------ */
+
+  .case-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 10vh;
+    padding-top: 3rem;
+    border-top: 1px solid rgb(255 255 255 / 0.07);
+  }
+
+  .case-nav-link {
+    display: grid;
+    gap: 0.6rem;
+    color: var(--color-text-2);
+    transition: color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .case-nav-link.is-next {
+    justify-items: end;
+    text-align: right;
+  }
+
+  .case-nav-link:hover {
+    color: var(--color-text-1);
+  }
+
+  @media (width < 64rem) {
+    .case-body {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .case-facts {
+      position: static;
+      top: auto;
+    }
+  }
+}

@@ -457,3 +457,39 @@ four widths are in `.verify/home/`.
 
 **Next task**
 Task 6 — Projects index and case-study pages.
+
+---
+
+## Task 6 — PROJECTS + CASE STUDY
+
+**What exists**
+- `src/routes/Projects.tsx` — an index, not a card grid. Each entry is a full-width
+  editorial row: index label, title, blurb, kind/year meta, stack chips. Featured
+  work takes display type and more room, so the seven have a hierarchy instead of
+  reading as identical cards. Kind filter is real client-side filtering with the
+  count stated (`2 of 7 shown`), not a decorative tab row.
+- `src/routes/CaseStudy.tsx` — the brief's required shape: problem, role, process,
+  outcome, constraint. One dominant title, a glass fact panel pinned beside the
+  prose on wide screens (kind/year/role/stack as system data), process as a real
+  ordered list — the numbers carry sequence, which is information, not the banned
+  decorative index. `placeholder` content is flagged honestly on the page itself.
+- Wired `/projects` and `/projects/:slug`, unknown slugs get an in-page 404.
+- CSS sections 10–12: shared `.page-head`/`.page-lede`/`.chip`/`.inline-link`/
+  `.filter` furniture, the `.prow` editorial row, and the case layout.
+
+**Verification — `scripts/verify-projects.mjs`, 31/31**
+- Seven rows, all link to `/projects/*`; 5 featured vs compact gives hierarchy.
+- Filter to research shows exactly 2 with the count stated; keyboard opens a row.
+- SIEGE carries all four required sections, a fact panel with role, a 5-step
+  ordered process, and the placeholder flag rendered in the page.
+- Prev/next: first entry offers only NEXT, middle offers both.
+- No horizontal scroll and one h1 at 1440/1024/768/390 on both routes.
+
+**Note**
+The `.case-process` numbers are a real `<ol>` counter, not a styled decoration —
+the anti-slop ban is on cosmetic 01/02/03 indexing, and a sequence number on a
+method list is the content.
+
+**Next task**
+Task 7 — Arsenal: the 3D capability constellation with its keyboard-navigable
+equivalent.

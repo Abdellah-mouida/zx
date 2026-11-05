@@ -9,6 +9,8 @@ import { useSmoothScroll } from './lib/scroll';
 import { routes } from './content';
 
 const Home = lazy(() => import('./routes/Home'));
+const Projects = lazy(() => import('./routes/Projects'));
+const CaseStudy = lazy(() => import('./routes/CaseStudy'));
 const Specimen = lazy(() => import('./routes/Specimen'));
 const SceneGate = lazy(() => import('./components/SceneGate'));
 
@@ -116,6 +118,8 @@ export default function App() {
               <Suspense fallback={null}>
                 <Routes>
                   <Route path="/" element={<Home />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/projects/:slug" element={<CaseStudy />} />
                   <Route path="/_specimen" element={<Specimen />} />
                 </Routes>
               </Suspense>
