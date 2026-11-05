@@ -491,6 +491,268 @@
       --glass-fill: rgb(17 20 26 / 0.96);
     }
   }
+
+  /* -------------------------------------------------------------- *
+     Custom cursor  (§8)
+  * -------------------------------------------------------------- */
+
+  /* Hide the native cursor only while ours is live and only on fine pointers. */
+  @media (hover: hover) and (pointer: fine) {
+    :root:not([data-motion='reduced']) body {
+      cursor: none;
+    }
+    :root:not([data-motion='reduced']) a,
+    :root:not([data-motion='reduced']) button,
+    :root:not([data-motion='reduced']) [role='button'],
+    :root:not([data-motion='reduced']) [role='link'],
+    :root:not([data-motion='reduced']) select,
+    :root:not([data-motion='reduced']) input,
+    :root:not([data-motion='reduced']) textarea {
+      cursor: none;
+    }
+  }
+
+  .cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 300;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-micro) var(--ease-out-quad);
+    /* children are positioned around the translate'd origin */
+  }
+
+  .cursor[data-active] {
+    opacity: 1;
+  }
+
+  .cursor-core,
+  .cursor-ring,
+  .cursor-drag,
+  .cursor-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  /* default: a tight dot */
+  .cursor-core {
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    translate: 0;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    transition:
+      width var(--dur-micro) var(--ease-out-quad),
+      height var(--dur-micro) var(--ease-out-quad),
+      background-color var(--dur-micro) var(--ease-out-quad),
+      opacity var(--dur-micro) var(--ease-out-quad);
+  }
+
+  /* link: a hollow ring around the dot */
+  .cursor-ring {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--color-accent-edge);
+    border-radius: 50%;
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity var(--dur-micro) var(--ease-out-quad),
+      scale var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .cursor[data-kind='link'] .cursor-ring,
+  .cursor[data-kind='project'] .cursor-ring {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .cursor[data-kind='link'] .cursor-core {
+    background-color: var(--color-accent-edge);
+  }
+
+  /* text: a thin I-beam */
+  .cursor[data-kind='text'] .cursor-core {
+    width: 2px;
+    height: 22px;
+    border-radius: 1px;
+    background-color: var(--color-accent-edge);
+  }
+
+  /* drag: two opposing carets */
+  .cursor-drag {
+    display: flex;
+    gap: 26px;
+    opacity: 0;
+    transition: opacity var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .cursor-drag span {
+    width: 8px;
+    height: 14px;
+    border-left: 1.5px solid var(--color-accent-edge);
+    border-bottom: 1.5px solid var(--color-accent-edge);
+  }
+
+  .cursor-drag span:first-child {
+    transform: rotate(45deg);
+  }
+
+  .cursor-drag span:last-child {
+    transform: rotate(-135deg);
+  }
+
+  .cursor[data-kind='drag'] .cursor-drag {
+    opacity: 1;
+  }
+
+  .cursor[data-kind='drag'] .cursor-core,
+  .cursor[data-kind='drag'] .cursor-ring {
+    opacity: 0;
+  }
+
+  /* project: a labelled frame */
+  .cursor-label {
+    top: 26px;
+    transform: translateX(-50%);
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--color-accent-edge);
+    border-radius: 2px;
+    background-color: rgb(0 0 0 / 0.72);
+    color: var(--color-accent-edge);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* -------------------------------------------------------------- *
+     Magnetic  (§8)
+  * -------------------------------------------------------------- */
+
+  .magnetic {
+    position: relative;
+    display: inline-flex;
+    /* the inner span is what translates; the button hitbox stays put */
+    isolation: isolate;
+    /* a generous hit area around the visual element */
+    padding: 0.5rem;
+  }
+
+  .magnetic-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    /* transform set from JS; the ease lives here so the catch is soft */
+    transition: transform var(--dur-micro) var(--ease-out-quad);
+    will-change: transform;
+  }
+
+  :root[data-motion='reduced'] .magnetic-inner {
+    transition: none;
+    transform: none !important;
+  }
+
+  /* -------------------------------------------------------------- *
+     Buttons  (§8)
+     Flat fills, no gradients. Primary is round (echoes the O),
+     everything else is square. Decided once.
+  * -------------------------------------------------------------- */
+
+  .btn {
+    --btn-fill: transparent;
+    --btn-ink: var(--color-text-1);
+    --btn-edge: transparent;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--btn-ink);
+    background-color: var(--btn-fill);
+    border: 1px solid var(--btn-edge);
+    transition:
+      background-color var(--dur-micro) var(--ease-out-quad),
+      color var(--dur-micro) var(--ease-out-quad),
+      border-color var(--dur-micro) var(--ease-out-quad);
+  }
+
+  .btn-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  /* primary: fully round, filled with the accent. One per viewport. */
+  .btn-primary {
+    --btn-fill: var(--color-accent);
+    --btn-ink: var(--color-void);
+    --btn-edge: var(--color-accent);
+    border-radius: 999px;
+    padding: 0.5rem 0.5rem 0.5rem 1.4rem;
+  }
+
+  .btn-primary .magnetic-inner {
+    padding-right: 0.9rem;
+  }
+
+  .btn-primary:hover {
+    --btn-fill: var(--color-accent-edge);
+    --btn-edge: var(--color-accent-edge);
+  }
+
+  .btn-primary:active {
+    scale: 0.985;
+    transition-duration: var(--dur-tap);
+  }
+
+  /* ghost: square, edge only. */
+  .btn-ghost {
+    --btn-edge: rgb(255 255 255 / 0.16);
+    border-radius: 2px;
+    padding: 0.7rem 1.2rem;
+  }
+
+  .btn-ghost:hover {
+    --btn-edge: var(--color-accent);
+    --btn-ink: var(--color-accent-edge);
+  }
+
+  .btn-ghost:active {
+    scale: 0.985;
+    transition-duration: var(--dur-tap);
+  }
+
+  /* quiet: text only, for tertiary actions. */
+  .btn-quiet {
+    --btn-ink: var(--color-text-2);
+    border-radius: 2px;
+    padding: 0.4rem 0;
+  }
+
+  .btn-quiet:hover {
+    --btn-ink: var(--color-accent-edge);
+  }
+
+  .btn:disabled {
+    --btn-ink: var(--color-text-3);
+    --btn-fill: var(--color-surface-3);
+    --btn-edge: rgb(255 255 255 / 0.08);
+    cursor: not-allowed;
+  }
+
+  :root[data-motion='reduced'] .btn:active {
+    scale: 1;
+  }
 }
 
 /* ------------------------------------------------------------------ *

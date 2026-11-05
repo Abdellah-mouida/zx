@@ -234,3 +234,79 @@ context-aware cursor, magnetic buttons, the custom icon set, and the mono micro-
 all exercised on a specimen route.
 
 
+
+---
+
+## 2026-11-05 — Task 3: Material layer
+
+**Built**
+The signature material and every shared interaction primitive, plus a behavioural
+test harness for them.
+
+**Files touched**
+- `src/lib/motion.ts` — reduced-motion store (`useSyncExternalStore`)
+- `src/lib/pointer.ts` — one shared rAF-coalesced pointer listener
+- `src/components/Glass.tsx` — the three levels from DESIGN.md §3.1
+- `src/components/Cursor.tsx` — context-aware cursor
+- `src/components/Magnetic.tsx` — magnetic label wrapper
+- `src/components/Button.tsx` — primary / ghost / quiet
+- `src/components/Micro.tsx` — the mono micro-label
+- `src/components/icons.tsx` — the custom icon set, including `IconZero`
+- `src/styles/tokens.css` — cursor, magnetic and button rules in the component layer
+- `src/App.tsx`, `src/routes/Specimen.tsx`
+- `scripts/verify-material.mjs` (new)
+
+**Decisions**
+
+1. **One pointer listener for the whole site**, in `src/lib/pointer.ts`, coalesced to
+   a single rAF. Every hover effect (sheen, magnetic, cursor) subscribes to it. The
+   obvious alternative — a listener per component — multiplies handler cost by the
+   number of glass panels on screen, and the Projects page will have many.
+2. **Reduced motion is one store, two inputs.** The OS preference and the in-app
+   "reduce effects" toggle both resolve to the same state and mirror to
+   `<html data-motion="reduced">`, so CSS and JS can never disagree about it. The
+   toggle persists to `localStorage`.
+3. **Effects are not merely disabled under reduced motion — they are not mounted.**
+   The cursor, the sheen and the magnetic transform skip their work entirely rather
+   than animating to zero. Same for a coarse pointer, where a sheen that tracks a
+   finger it cannot see is pure cost.
+4. **The icon set is hand-drawn on a 24px grid at 1.5px stroke with square caps.**
+   No Lucide, no FontAwesome, nothing in a tinted square. `IconZero` is the Ø motif
+   and is reused as the mode toggle, the loader and the favicon, so the signature
+   element has exactly one definition.
+5. **Button shape is decided once, not per use:** primary is fully round (it echoes
+   the Ø) and magnetic; ghost and quiet are square and are not. This removes
+   per-component radius guessing, which is how a system drifts.
+
+**Verification**
+
+- `scripts/verify-material.mjs` — **15 behavioural checks, 15 pass.** These assert
+  behaviour in a real browser, not the presence of classes:
+  - the cursor renders, and its state moves default → link → default as the pointer
+    crosses a link; the native cursor is hidden beneath it and restored afterwards
+  - the magnetic label genuinely translates (measured matrix offset 1.333px)
+  - the sheen tracks to the exact hover coordinates (30% / 40%) and clears on leave
+  - the three glass levels resolve to three distinct blurs (12 / 20 / 32px)
+  - the focus ring is 2px and present
+  - `html[data-motion="reduced"]` is set under an emulated OS preference, and the
+    cursor and magnetic transform are both inert in that state
+  - all content is still present and readable under reduced motion
+  - cursor and magnetic are inert on a coarse pointer
+- **Two failures during the run were test bugs, not component bugs**, and were fixed
+  in the harness rather than worked around in the components:
+  1. the sheen check hovered an element below the 900px fold, so `elementFromPoint`
+     returned nothing — fixed with `scrollIntoViewIfNeeded` before hovering;
+  2. the focus-ring check read `getComputedStyle(el, ':focus-visible')`, which returns
+     empty strings by spec — fixed by focusing the element and reading its computed
+     outline.
+- `npm run build` clean in 657ms. Index JS 11.87KB gzip, vendor 81.23KB gzip — still
+  far inside the §10 budget.
+
+**Known limitation**
+Icon legibility at small sizes is a human-eyes judgement I cannot make (no image
+input). Screenshots are in `.verify/specimen/`.
+
+**Next task**
+Task 4 — atmosphere: the aurora shader with its five per-page moods, GPU-instanced
+particles, light trails, the FPS monitor and quality tiers, the router with animated
+route transitions, and the cinematic preloader.

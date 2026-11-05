@@ -1,17 +1,39 @@
 import { identity, contact, arsenal, projects, projectIndexLabel } from '../content';
+import { Glass } from '../components/Glass';
+import { Button } from '../components/Button';
+import { Micro } from '../components/Micro';
+import {
+  IconZero,
+  IconEnter,
+  IconTerminal,
+  IconCopy,
+  IconTransmit,
+  IconKey,
+  IconConfirm,
+  IconFault,
+  IconChevron,
+  IconClose,
+  IconBack,
+  IconReduceMotion,
+  IconAudio,
+  IconAudioMuted,
+  IconRepo,
+  IconBroadcast,
+  IconMessage,
+  IconRange,
+  IconMail,
+} from '../components/icons';
 
 /**
- * Specimen route — a temporary kitchen sink that proves every foundation
- * token resolves and every content file loads. It is not a page design;
- * the real nav and pages replace it in tasks 4–9.
+ * Specimen — the material kitchen sink. Exercises the three glass levels,
+ * the pointer sheen, every icon, the buttons and the cursor, so Task 3 is
+ * verified by the harness before real pages are built on it.
  */
 export default function Specimen() {
   return (
     <main className="frame">
       <section style={{ paddingBlock: 'var(--section-gap)' }}>
-        <p className="t-micro" style={{ color: 'var(--color-accent)' }}>
-          SYS: ONLINE — FOUNDATION SPECIMEN
-        </p>
+        <Micro accent>SYS: ONLINE — FOUNDATION SPECIMEN</Micro>
         <h1 className="t-display-xl">{identity.handle}</h1>
         <p className="t-statement" style={{ marginTop: '1.5rem', color: 'var(--color-text-2)' }}>
           {identity.tagline}
@@ -19,6 +41,16 @@ export default function Specimen() {
         <p className="t-body" style={{ marginTop: '1rem' }}>
           {identity.positioning}
         </p>
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', alignItems: 'center' }}>
+          <Button variant="primary">
+            Enter <IconEnter size={14} />
+          </Button>
+          <Button variant="ghost">Projects</Button>
+          <Button variant="quiet">
+            <IconTerminal size={14} /> terminal
+          </Button>
+        </div>
       </section>
 
       <section style={{ paddingBlock: 'var(--section-gap)' }}>
@@ -31,24 +63,63 @@ export default function Specimen() {
             marginTop: '2rem',
           }}
         >
-          <div className="glass-surface" style={{ padding: '1.5rem' }}>
-            <p className="t-micro" style={{ color: 'var(--color-text-3)' }}>
-              glass-surface
+          <Glass level="surface" style={{ padding: '1.5rem' }}>
+            <Micro>glass-surface</Micro>
+            <p className="t-body" style={{ marginTop: '0.5rem' }}>
+              backdrop 12px, fill 48%, edge 0.10. Sheen on hover.
             </p>
-            <p className="t-body">backdrop 12px, fill 48%, edge 0.10, no shadow.</p>
-          </div>
-          <div className="glass-raised" style={{ padding: '1.5rem' }}>
-            <p className="t-micro" style={{ color: 'var(--color-text-3)' }}>
-              glass-raised
+          </Glass>
+          <Glass level="raised" style={{ padding: '1.5rem' }}>
+            <Micro>glass-raised</Micro>
+            <p className="t-body" style={{ marginTop: '0.5rem' }}>
+              backdrop 20px, fill 62%, edge 0.18, tracking sheen, bounce.
             </p>
-            <p className="t-body">backdrop 20px, fill 62%, edge 0.18, tracking sheen.</p>
-          </div>
-          <div className="glass-overlay" style={{ padding: '1.5rem' }}>
-            <p className="t-micro" style={{ color: 'var(--color-text-3)' }}>
-              glass-overlay
+          </Glass>
+          <Glass level="overlay" style={{ padding: '1.5rem' }}>
+            <Micro>glass-overlay</Micro>
+            <p className="t-body" style={{ marginTop: '0.5rem' }}>
+              backdrop 32px, fill 78%, edge 0.26, floats.
             </p>
-            <p className="t-body">backdrop 32px, fill 78%, edge 0.26, floats.</p>
-          </div>
+          </Glass>
+        </div>
+      </section>
+
+      <section style={{ paddingBlock: 'var(--section-gap)' }}>
+        <h2 className="t-heading">Icon set</h2>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '2rem',
+            marginTop: '2rem',
+            color: 'var(--color-text-2)',
+          }}
+        >
+          {[
+            IconZero,
+            IconEnter,
+            IconBack,
+            IconChevron,
+            IconClose,
+            IconTerminal,
+            IconCopy,
+            IconConfirm,
+            IconFault,
+            IconTransmit,
+            IconKey,
+            IconReduceMotion,
+            IconAudio,
+            IconAudioMuted,
+            IconRepo,
+            IconBroadcast,
+            IconMessage,
+            IconRange,
+            IconMail,
+          ].map((Icon, i) => (
+            <div key={i} style={{ display: 'grid', gap: '0.5rem', justifyItems: 'center' }}>
+              <Icon size={24} />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -58,9 +129,7 @@ export default function Specimen() {
           Arsenal: {arsenal.length} clusters, {arsenal.flatMap((c) => c.nodes).length} nodes. Projects:{' '}
           {projects.length} case studies.
         </p>
-        <p className="t-micro" style={{ marginTop: '1rem', color: 'var(--color-text-3)' }}>
-          {projects.map((p) => `${p.slug} ${projectIndexLabel(p)}`).join('  ·  ')}
-        </p>
+        <Micro>{projects.map((p) => `${p.slug} ${projectIndexLabel(p)}`).join('  ·  ')}</Micro>
         <p className="t-small" style={{ marginTop: '1rem', color: 'var(--color-text-2)' }}>
           PGP {contact.pgpFingerprint} — {contact.email}
         </p>
